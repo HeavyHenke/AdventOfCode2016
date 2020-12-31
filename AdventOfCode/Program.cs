@@ -25,7 +25,7 @@ namespace AdventOfCode
         [STAThread]
         static void Main(string[] args)
         {
-            new Day6().DoItB();
+            new Day7().DoItB();
         }
     }
 
