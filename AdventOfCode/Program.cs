@@ -10,12 +10,10 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Xml.XPath;
 using MoreLinq;
-using static AdventOfCode.Tools;
 using static System.Math;
 
 namespace AdventOfCode
@@ -25,7 +23,7 @@ namespace AdventOfCode
         [STAThread]
         static void Main(string[] args)
         {
-            new Day19().DoItB();
+            new Day21().DoItB();
         }
     }
 

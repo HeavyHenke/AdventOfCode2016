@@ -1,12 +1,12 @@
 using System;
-using System.CodeDom;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace AdventOfCode
 {
     internal class Day20
     {
+        [DebuggerDisplay("{Start} - {Stop}")]
         class Range : IComparable
         {
             public uint Start;
@@ -17,6 +17,8 @@ namespace AdventOfCode
                 var parts = input.Split('-');
                 Start = uint.Parse(parts[0]);
                 Stop = uint.Parse(parts[1]);
+                if( Stop < Start)
+                    throw  new Exception("Knas");
             }
 
             public int CompareTo(object obj)
@@ -24,11 +26,12 @@ namespace AdventOfCode
                 var other = (Range) obj;
                 if (other.Start > Start) return -1;
                 if (other.Start < Start) return 1;
+                
                 return 0;
             }
         }
 
-        public void DoIt()
+        public void DoItA()
         {
             var list = _data.SplitLines().Select(l => new Range(l)).ToList();
             list.Sort();
@@ -52,28 +55,23 @@ namespace AdventOfCode
 
             for (int i = 0; i < list.Count - 1; i++)
             {
-                while (i + 1 < list.Count && list[i + 1].Start <= list[i].Stop)
+                while (i + 1 < list.Count && (list[i + 1].Start <= list[i].Stop || list[i + 1].Start == list[i].Stop + 1))
                 {
-                    var stop = Math.Max(list[i].Stop, list[i + 1].Stop);
-                    list[i].Stop = stop;
+                    list[i].Stop = Math.Max(list[i].Stop, list[i + 1].Stop);
                     list.RemoveAt(i + 1);
                 }
             }
 
 
-            long numAllowed = 0;
-            uint lastStop = list[1].Stop;
-            for (int i = 0; i < list.Count; i++)
+            long numAllowed = list[0].Start;
+            for (int i = 1; i < list.Count; i++)
             {
-                numAllowed += list[i].Start - lastStop - 1;
+                numAllowed += list[i].Start - list[i-1].Stop - 1;
             }
 
-            numAllowed += uint.MaxValue - list[list.Count - 1].Stop;
-
-            // 348815447164 to high
+            numAllowed += 4294967295 - list[list.Count - 1].Stop;
             Tools.PostResult(numAllowed);
         }
-
 
         private const string _data = @"1397985562-1399927095
 3833336583-3842601761
