@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -8,7 +9,49 @@ namespace AdventOfCode
 {
     internal sealed class Day11
     {
-        public void DoIt()
+        public void DoItA()
+        {
+            var visited = new HashSet<Node>();
+            var searchQ = new Queue<Node>();
+            searchQ.Enqueue(new Node());
+
+            int lastReportedSteps = 0;
+            Stopwatch swTot = new Stopwatch();
+            Stopwatch sw = new Stopwatch();
+            swTot.Start();
+            sw.Start();
+
+            while (true)
+            {
+                var node = searchQ.Dequeue();
+                visited.Add(node);
+
+                if (node.NumSteps != lastReportedSteps)
+                {
+                    Console.WriteLine($"Step {node.NumSteps} nodes {searchQ.Count} visited {visited.Count} it took {sw.Elapsed.TotalSeconds} s");
+                    lastReportedSteps = node.NumSteps;
+                    sw.Restart();
+                }
+
+                foreach (var child in node.CreateChildren())
+                {
+                    if (child.IsSolved())
+                    {
+                        swTot.Stop();
+                        Console.WriteLine("Total time " + swTot.Elapsed);
+                        Tools.PostResult(child.NumSteps);
+                        return;
+                    }
+
+                    if (visited.Add(child) == false)
+                        continue;
+
+                    searchQ.Enqueue(child);
+                }
+            }
+        }
+
+        public void DoItB()
         {
             var visited = new HashSet<ulong>();
             var searchQ = new Queue<Node3>();
@@ -38,7 +81,7 @@ namespace AdventOfCode
                     {
                         swTot.Stop();
                         Console.WriteLine("Total time " + swTot.Elapsed);
-                        //PostResult(child.NumSteps);
+                        Tools.PostResult(child.NumSteps-2);
                         return;
                     }
 
@@ -51,7 +94,7 @@ namespace AdventOfCode
             }
         }
 
-        /* Initial unoptimized solution
+        /* Initial unoptimized solution */
         class Node
         {
             private readonly List<List<string>> _floorStuff;
@@ -67,30 +110,26 @@ namespace AdventOfCode
                 for (int i = 0; i <= 4; i++)
                     _floorStuff.Add(new List<string>());
 
-
                 //_floorStuff[0].Add("hydrogen microchip");
                 //_floorStuff[0].Add("lithium microchip");
                 //_floorStuff[1].Add("hydrogen generator");
                 //_floorStuff[2].Add("lithium generator");
                 //_numItems = 4;
 
-                _floorStuff[0].Add("elerium generator");
-                _floorStuff[0].Add("elerium microchip");
-                _floorStuff[0].Add("dilithium generator");
-                _floorStuff[0].Add("dilithium microchip");
+                _floorStuff[0].Add("thulium generator");
+                _floorStuff[0].Add("thulium microchip");
+                _floorStuff[0].Add("plutonium generator");
+                _floorStuff[0].Add("strontium generator");
 
-                _floorStuff[0].Add("promethium generator");
-                _floorStuff[0].Add("promethium microchip");
-                _floorStuff[1].Add("cobalt generator");
-                _floorStuff[1].Add("curium generator");
-                _floorStuff[1].Add("ruthenium generator");
-                _floorStuff[1].Add("plutonium generator");
+                _floorStuff[1].Add("plutonium microchip");
+                _floorStuff[1].Add("strontium microchip");
 
-                _floorStuff[2].Add("cobalt microchip");
-                _floorStuff[2].Add("curium microchip");
+                _floorStuff[2].Add("promethium generator");
+                _floorStuff[2].Add("promethium microchip");
+                _floorStuff[2].Add("ruthenium generator");
                 _floorStuff[2].Add("ruthenium microchip");
-                _floorStuff[2].Add("plutonium microchip");
-                _numItems = 14;
+
+                _numItems = 10;
             }
 
             private Node(Node other, int direction, string toMove)
@@ -197,7 +236,6 @@ namespace AdventOfCode
                         .Where(m => m != null)
                         .ToList();
 
-                // step 8 tog 1,9s => 1,5
                 int numMissmatches = chips.Count(c => !generators.Contains(c));
                 if (numMissmatches > 0)
                     return false;
@@ -276,7 +314,7 @@ namespace AdventOfCode
                 return sb.ToString();
             }
         }
-        */
+        
 
         sealed class Node3
         {
@@ -284,16 +322,13 @@ namespace AdventOfCode
             private readonly int _elevatorFloor;
             public readonly int NumSteps;
 
-            //private static uint hydrogen = 1;
-            //private static uint lithium = 2;
-
-            private const ushort elerium = 1;
-            private const ushort dilithium = 2;
-            private const ushort promethium = 4;
-            private const ushort cobalt = 8;
-            private const ushort curium = 16;
-            private const ushort ruthenium = 32;
-            private const ushort plutonium = 64;
+            private const ushort thulium = 1;
+            private const ushort plutonium = 2;
+            private const ushort strontium = 4;
+            private const ushort promethium = 8;
+            private const ushort ruthenium = 16;
+            private const ushort elerium = 32;
+            private const ushort dilithium = 64;
 
             private const ushort solution = 0x7F7F;
 
@@ -303,55 +338,24 @@ namespace AdventOfCode
                 _elevatorFloor = 0;
                 _floors = new ushort[4];
 
-                //_floors[0].AddChip(hydrogen);
-                //_floors[0].AddChip(lithium);
-                //_floors[1].AddGenerator(hydrogen);
-                //_floors[2].AddGenerator(lithium);
-                //_numItems = 4;
+                _floors[0] = AddChip(_floors[0], thulium);
+                _floors[0] = AddGenerator(_floors[0], thulium);
+                _floors[0] = AddGenerator(_floors[0], plutonium);
+                _floors[0] = AddGenerator(_floors[0], strontium);
 
-                //_floors[0].AddChip("hydrogen");
-                //_floors[0].AddChip("lithium");
-                //_floors[1].AddGenerator("hydrogen");
-                //_floors[2].AddGenerator("lithium");
-                //_numItems = 4;
+                _floors[1] = AddChip(_floors[1], plutonium);
+                _floors[1] = AddChip(_floors[1], strontium);
 
-                _floors[0] = AddGenerator(_floors[0], elerium);
-                _floors[0] = AddChip(_floors[0], elerium);
-                _floors[0] = AddGenerator(_floors[0], dilithium);
-                _floors[0] = AddChip(_floors[0], dilithium);
-                _floors[0] = AddGenerator(_floors[0], promethium);
-                _floors[0] = AddChip(_floors[0], promethium);
 
-                _floors[1] = AddGenerator(_floors[1], cobalt);
-                _floors[1] = AddGenerator(_floors[1], curium);
-                _floors[1] = AddGenerator(_floors[1], ruthenium);
-                _floors[1] = AddGenerator(_floors[1], plutonium);
-
-                _floors[2] = AddChip(_floors[2], cobalt);
-                _floors[2] = AddChip(_floors[2], curium);
+                _floors[2] = AddChip(_floors[2], promethium);
                 _floors[2] = AddChip(_floors[2], ruthenium);
-                _floors[2] = AddChip(_floors[2], plutonium);
-                //_numItems = 14;
-                // solution = 0x7F7F;
+                _floors[2] = AddGenerator(_floors[2], promethium);
+                _floors[2] = AddGenerator(_floors[2], ruthenium);
 
-
-                //_floors[0].AddGenerator("elerium");
-                //_floors[0].AddChip("elerium");
-                //_floors[0].AddGenerator("dilithium");
-                //_floors[0].AddChip("dilithium");
-                //_floors[0].AddGenerator("promethium");
-                //_floors[0].AddChip("promethium");
-
-                //_floors[1].AddGenerator("cobalt");
-                //_floors[1].AddGenerator("curium");
-                //_floors[1].AddGenerator("ruthenium");
-                //_floors[1].AddGenerator("plutonium");
-
-                //_floors[2].AddChip("cobalt");
-                //_floors[2].AddChip("curium");
-                //_floors[2].AddChip("ruthenium");
-                //_floors[2].AddChip("plutonium");
-                //_numItems = 14;
+                _floors[0] = AddChip(_floors[0], elerium);
+                _floors[0] = AddChip(_floors[0], dilithium);
+                _floors[0] = AddGenerator(_floors[0], elerium);
+                _floors[0] = AddGenerator(_floors[0], dilithium);
             }
 
             private Node3(Node3 other, short direction, ushort toMove)

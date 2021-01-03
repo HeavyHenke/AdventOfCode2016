@@ -7,7 +7,43 @@ namespace AdventOfCode
 {
     internal class Day13
     {
-        public void DoIt()
+        public void DoItA()
+        {
+            var node = new Node();
+            var visited = new Dictionary<Coord, int>();
+
+            var searchQ = new Queue<Node>();
+            searchQ.Enqueue(node);
+            visited.Add(node.Coord, 0);
+
+            int lastReport = 0;
+            while (true)
+            {
+                node = searchQ.Dequeue();
+
+                if (node.NumSteps != lastReport)
+                    Console.WriteLine((lastReport = node.NumSteps) + " visited " + visited.Count + " queue size " + searchQ.Count);
+
+                foreach (var child in node.CreateChildren())
+                {
+                    if (child.Coord.X == 31 && child.Coord.Y == 39)
+                    {
+                        var map = CreateMap(visited, child);
+
+                        Tools.PostResult(child.NumSteps); // 141 too high
+                        return;
+                    }
+
+                    if (visited.ContainsKey(child.Coord))
+                        continue;
+
+                    visited.Add(child.Coord, child.NumSteps);
+                    searchQ.Enqueue(child);
+                }
+            }
+        }
+
+        public void DoItB()
         {
             var node = new Node();
             var visited = new Dictionary<Coord, int>();
@@ -35,14 +71,6 @@ namespace AdventOfCode
 
                 foreach (var child in node.CreateChildren())
                 {
-                    if (child.Coord.X == 31 && child.Coord.Y == 39)
-                    {
-                        var map = CreateMap(visited, child);
-
-                        Tools.PostResult(child.NumSteps);
-                        return;
-                    }
-
                     if (visited.ContainsKey(child.Coord))
                         continue;
 
@@ -132,7 +160,7 @@ namespace AdventOfCode
             if (x < 0 || y < 0)
                 return true;
 
-            var val = x*x + 3*x + 2*x*y + y + y*y + 1364;
+            var val = x*x + 3*x + 2*x*y + y + y*y + 1358;
 
             int numBits = 0;
             int mask = 1;

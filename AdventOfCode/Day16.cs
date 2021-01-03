@@ -10,9 +10,9 @@ namespace AdventOfCode
             string a;
             string b;
 
-            const int diskSize = 35651584;
+            const int diskSize = 35_651_584;
 
-            a = "10111100110001111";
+            a = "10001001100000001";
 
 
             while (a.Length < diskSize)

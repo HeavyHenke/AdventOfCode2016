@@ -6,15 +6,32 @@ namespace AdventOfCode
 {
     internal class Day15
     {
-        public void DoIt()
+        public void DoItA()
         {
-            //var discs = new[]
-            //{
-            //    new Disc(5, 4), new Disc(2, 1),
-            //};
+            var discs = _input.SplitLines().Select(l => new Disc(l)).ToArray();
 
+            for (int time = 0; ; time++)
+            {
+                bool fail = false;
+                for (int disc = 0; disc < discs.Length; disc++)
+                {
+                    if (discs[disc].IsAt0(time + disc + 1) == false)
+                    {
+                        fail = true;
+                        break;
+                    }
+                }
+                if (!fail)
+                {
+                    Tools.PostResult(time);
+                    return;
+                }
+            }
+        }
+
+        public void DoItB()
+        {
             var discs = _input.SplitLines().Select(l => new Disc(l)).Concat(new [] {new Disc(11,0), }).ToArray();
-
 
             for (int time = 0;; time++)
             {
@@ -37,8 +54,8 @@ namespace AdventOfCode
 
         class Disc
         {
-            private int _posAtTime0;
-            private int _numPoses;
+            private readonly int _posAtTime0;
+            private readonly int _numPoses;
 
             public Disc(string text)
             {
@@ -62,11 +79,11 @@ namespace AdventOfCode
             }
         }
 
-        private const string _input = @"Disc #1 has 17 positions; at time=0, it is at position 5.
-Disc #2 has 19 positions; at time=0, it is at position 8.
-Disc #3 has 7 positions; at time=0, it is at position 1.
-Disc #4 has 13 positions; at time=0, it is at position 7.
-Disc #5 has 5 positions; at time=0, it is at position 1.
-Disc #6 has 3 positions; at time=0, it is at position 0.";
+        private const string _input = @"Disc #1 has 17 positions; at time=0, it is at position 15.
+Disc #2 has 3 positions; at time=0, it is at position 2.
+Disc #3 has 19 positions; at time=0, it is at position 4.
+Disc #4 has 13 positions; at time=0, it is at position 2.
+Disc #5 has 7 positions; at time=0, it is at position 2.
+Disc #6 has 5 positions; at time=0, it is at position 0.";
     }
 }

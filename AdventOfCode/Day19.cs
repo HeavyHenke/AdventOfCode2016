@@ -1,42 +1,23 @@
-﻿using System;
-using System.CodeDom.Compiler;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Numerics;
-using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization.Formatters;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Xml.XPath;
-using MoreLinq;
+﻿using System.Collections.Generic;
 using static AdventOfCode.Tools;
-using static System.Math;
 
 namespace AdventOfCode
 {
 
     internal class Day19
     {
-        public void DoIt()
+        public void DoItA()
         {
-            const int numElfs = 3012210;
+            const int numElves = 3005290;
 
-            int[] presentsByElf = new int[numElfs];
+            int[] presentsByElf = new int[numElves];
             for (int i = 0; i < presentsByElf.Length; i++)
                 presentsByElf[i] = 1;
 
-            int numElfsWithPresents = numElfs;
+            int numElvesWithPresents = numElves;
 
             int elfNumsTurn = 0;
-            while (numElfsWithPresents > 1)
+            while (numElvesWithPresents > 1)
             {
                 if (elfNumsTurn >= presentsByElf.Length)
                     elfNumsTurn = 0;
@@ -49,17 +30,17 @@ namespace AdventOfCode
                 }
 
                 // Find next elf to left
-                int leftElve = elfNumsTurn;
+                int leftElf = elfNumsTurn;
                 do
                 {
-                    leftElve++;
-                    if (leftElve >= presentsByElf.Length)
-                        leftElve = 0;
-                } while (presentsByElf[leftElve] == 0);
+                    leftElf++;
+                    if (leftElf >= presentsByElf.Length)
+                        leftElf = 0;
+                } while (presentsByElf[leftElf] == 0);
 
-                presentsByElf[elfNumsTurn] += presentsByElf[leftElve];
-                presentsByElf[leftElve] = 0;
-                numElfsWithPresents--;
+                presentsByElf[elfNumsTurn] += presentsByElf[leftElf];
+                presentsByElf[leftElf] = 0;
+                numElvesWithPresents--;
                 elfNumsTurn++;
             }
 
@@ -73,136 +54,34 @@ namespace AdventOfCode
             }
         }
 
-
-        public void DoIt2()
+        public void DoItB()
         {
-            const int numElfs = 3012210;
-            var sw = new Stopwatch();
-            sw.Start();
+            const int numElves = 3005290;
 
-            int[] presentsByElf = new int[numElfs];
-            for (int i = 0; i < presentsByElf.Length; i++)
-                presentsByElf[i] = 1;
+            var elves = new LinkedList<int>();
+            LinkedListNode<int> opposite = null;
 
-            int numElfsWithPresents = numElfs;
-
-            int elfNumsTurn = 0;
-            while (numElfsWithPresents > 1)
+            for (int i = 0; i < numElves; i++)
             {
-                if (elfNumsTurn >= presentsByElf.Length)
-                    elfNumsTurn = 0;
-
-                while (presentsByElf[elfNumsTurn] == 0)
-                {
-                    elfNumsTurn++;
-                    if (elfNumsTurn >= presentsByElf.Length)
-                        elfNumsTurn = 0;
-                }
-
-                // Find elf to steal from
-                int elfToStealFrom = numElfsWithPresents / 2;
-
-                int elfNumToStealFrom = elfNumsTurn;
-                while (elfToStealFrom > 0)
-                {
-                    elfNumToStealFrom++;
-                    if (elfNumToStealFrom == numElfs)
-                        elfNumToStealFrom = 0;
-                    while (presentsByElf[elfNumToStealFrom] == 0)
-                    {
-                        elfNumToStealFrom++;
-                        if (elfNumToStealFrom == numElfs)
-                            elfNumToStealFrom = 0;
-                    }
-
-                    elfToStealFrom--;
-                }
-
-
-                presentsByElf[elfNumsTurn] += presentsByElf[elfNumToStealFrom];
-                presentsByElf[elfNumToStealFrom] = 0;
-                numElfsWithPresents--;
-                elfNumsTurn++;
-
-                if (numElfsWithPresents%1000 == 0)
-                {
-                    var prognos = sw.ElapsedMilliseconds*(numElfsWithPresents/1000.0);
-                    Console.WriteLine($"Num elves with presents {numElfsWithPresents}, estimated ready in {prognos/(1000.0*60)} minutes");
-                    sw.Restart();
-                }
+                elves.AddLast(i + 1);
+                if (i == numElves / 2)
+                    opposite = elves.Last;
             }
 
-            for (int i = 0; i < presentsByElf.Length; i++)
+            while (elves.Count > 1)
             {
-                if (presentsByElf[i] > 0)
-                {
-                    PostResult(i + 1);
-                    return;
-                }
-            }
-        }
+                var next = opposite.Next ?? elves.First;
+                elves.Remove(opposite);
 
-        public void DoIt2b()
-        {
-            const int numElfs = 3012210;
-            var sw = new Stopwatch();
-            sw.Start();
-
-            var presentsByElf = new LinkedList<Tuple<int,int>>();
-
-            for (int i = 0; i < numElfs; i++)
-            {
-                presentsByElf.AddLast(Tuple.Create(i, 1));
-            }
-
-            int numElfsWithPresents = numElfs;
-
-            LinkedListNode<Tuple<int, int>> elfsTurn = presentsByElf.First;
-            int elfIx = 0;
-            while (numElfsWithPresents > 1)
-            {
-                // Find elf to steal from
-                int distToElfToStealFrom = numElfsWithPresents / 2;
-                LinkedListNode<Tuple<int, int>> elfToStealFrom;
-
-                if (distToElfToStealFrom + elfIx >= numElfsWithPresents)
-                {
-                    distToElfToStealFrom -= numElfsWithPresents - elfIx;
-                    elfToStealFrom = presentsByElf.First;
-                    elfIx--;
-                }
+                if ((elves.Count % 2) == 0)
+                    opposite = next.Next ?? elves.First;
                 else
-                {
-                    elfToStealFrom = elfsTurn;
-                }
-
-                while (distToElfToStealFrom-- > 0)
-                {
-                    elfToStealFrom = elfToStealFrom.Next ?? presentsByElf.First;
-                }
-
-
-                elfsTurn.Value = Tuple.Create(elfsTurn.Value.Item1, elfsTurn.Value.Item2 + elfToStealFrom.Value.Item2);
-                presentsByElf.Remove(elfToStealFrom);
-
-                numElfsWithPresents--;
-
-
-                if (numElfsWithPresents % 1000 == 0)
-                {
-                    var prognos = sw.ElapsedMilliseconds * (numElfsWithPresents / 1000.0);
-                    Console.WriteLine($"Num elves with presents {numElfsWithPresents}, estimated ready in {prognos / (1000.0 * 60)} minutes");
-                    sw.Restart();
-                }
-
-                elfsTurn = elfsTurn.Next ?? presentsByElf.First;
-                elfIx++;
-                if (elfIx == numElfsWithPresents)
-                    elfIx = 0;
+                    opposite = next;
             }
 
-            PostResult(presentsByElf.First.Value.Item1 + 1);
+            PostResult(elves.First.Value);
         }
+
     }
 
 }
