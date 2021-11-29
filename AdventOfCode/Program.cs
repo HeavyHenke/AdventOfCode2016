@@ -1,19 +1,6 @@
 ﻿using System;
-using System.CodeDom.Compiler;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Numerics;
-using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization.Formatters;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Xml.XPath;
-using MoreLinq;
-using static System.Math;
 
 namespace AdventOfCode
 {
@@ -24,7 +11,7 @@ namespace AdventOfCode
         {
             var sw = new Stopwatch();
             sw.Start();
-            new Day24().DoItB();
+            new Day23().DoItA();
             sw.Stop();
             Console.WriteLine($"It took {sw.Elapsed}");
         }
