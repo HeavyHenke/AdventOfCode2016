@@ -9,7 +9,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Xml.XPath;
@@ -23,9 +22,14 @@ namespace AdventOfCode
         [STAThread]
         static void Main(string[] args)
         {
-            new Day21().DoItB();
+            var sw = new Stopwatch();
+            sw.Start();
+            new Day24().DoItB();
+            sw.Stop();
+            Console.WriteLine($"It took {sw.Elapsed}");
         }
     }
+
 
     [DebuggerDisplay("({X}, {Y})")]
     public class Coord
